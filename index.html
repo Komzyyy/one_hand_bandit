@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Однорукий бандит</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #8B4513, #A0522D, #CD853F);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-radius: 15px;
+    color: white;
+}
+
+.player-info {
+    text-align: left;
+}
+
+.player-name {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.score {
+    font-size: 1.1em;
+}
+
+.attempt-info {
+    font-size: 1.3em;
+    font-weight: bold;
+    background: rgba(255,255,255,0.2);
+    padding: 10px 20px;
+    border-radius: 25px;
+}
+
+.slot-machine {
+    background: linear-gradient(135deg, #c0392b, #e74c3c);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+    border: 5px solid #2c3e50;
+}
+
+.reels {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.reel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.symbol {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border: 3px solid #f1c40f;
+    transition: all 0.3s ease;
+}
+
+.symbol.win {
+    background: #d5f5e3;
+    border-color: #27ae60;
+    transform: scale(1.1);
+    animation: glow 0.5s ease-in-out;
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 10px #27ae60; }
+    50% { box-shadow: 0 0 20px #27ae60; }
+}
+
+.result {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 10px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.result.win {
+    background: #d5f5e3;
+    color: #27ae60;
+    border: 2px solid #27ae60;
+}
+
+.result.lose {
+    background: #fadbd8;
+    color: #e74c3c;
+    border: 2px solid #e74c3c;
+}
+
+.controls {
+    margin-bottom: 30px;
+}
+
+button {
+    background: linear-gradient(135deg, #27ae60, #219a52);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.2em;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    font-weight: bold;
+    margin: 0 10px;
+}
+
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+}
+
+button:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+#newGameBtn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.history {
+    background: rgba(52, 152, 219, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.history h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.history-item {
+    background: white;
+    margin: 8px 0;
+    padding: 12px 15px;
+    border-radius: 10px;
+    text-align: left;
+    border-left: 4px solid #3498db;
+}
+
+.history-item.win {
+    border-left-color: #27ae60;
+    background: #d5f5e3;
+}
+
+.history-item.lose {
+    border-left-color: #e74c3c;
+    background: #fadbd8;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.winner-message {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #27ae60;
+    margin: 15px 0;
+    padding: 20px;
+    background: #d5f5e3;
+    border-radius: 15px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@media (max-width: 768px) {
+    .game-info {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .player-info {
+        text-align: center;
+    }
+    
+    .symbol {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5em;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    .controls {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    button {
+        width: 100%;
+        margin: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+    }
+    
+    h1 {
+        font-size: 1.8em;
+    }
+    
+    .symbol {
+        width: 50px;
+        height: 50px;
+        font-size: 1.3em;
+    }
+    
+    .reels {
+        gap: 10px;
+    }
+    
+    .game-info {
+        padding: 15px;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎰 Однорукий бандит 🎰</h1>
+        
+        <div class="game-info">
+            <div class="player-info">
+                <div class="player-name" id="userName">Гравець</div>
+                <div class="score">Перемоги: <span id="userScore">0</span></div>
+            </div>
+            <div class="attempt-info">
+                Спроба <span id="currentAttempt">1</span> з <span id="maxAttempts">3</span>
+            </div>
+        </div>
+
+        <div class="slot-machine">
+            <div class="reels" id="reels">
+            </div>
+        </div>
+
+        <div class="result" id="resultMessage"></div>
+
+        <div class="controls">
+            <button id="spinBtn">Крутити!</button>
+            <button id="newGameBtn" style="display: none;">Нова гра</button>
+        </div>
+
+        <div class="history">
+            <h3>Історія спроб</h3>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <script>
+        let userName = '';
+let userScore = 0;
+let currentAttempt = 1;
+const maxAttempts = 3;
+let gameActive = false;
+
+const symbols = ['🍒', '🍋', '🍊', '🍇', '🍉', '⭐', '🔔', '💎'];
+const reelsCount = 3;
+const symbolsPerReel = 3;
+
+function getUserName() {
+    userName = prompt('Введіть ваше імʼя:');
+    if (userName === null || userName.trim() === '') {
+        showCancelMessage();
+        return false;
+    }
+    userName = userName.trim();
+    document.getElementById('userName').textContent = userName;
+    return true;
+}
+
+function showCancelMessage() {
+    document.body.innerHTML = `
+        <div style="
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        ">
+            <h1 style="font-size: 2.5em; margin-bottom: 20px; color: white;">🎰 Гра скасована 🎰</h1>
+            <p style="font-size: 1.3em; margin-bottom: 30px;">Будь ласка, введіть ім'я для початку гри</p>
+            <button onclick="location.reload()" style="
+                background: linear-gradient(135deg, #3498db, #2980b9);
+                color: white;
+                border: none;
+                padding: 15px 40px;
+                font-size: 1.2em;
+                border-radius: 25px;
+                cursor: pointer;
+                font-weight: bold;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            ">Спробувати знову</button>
+        </div>
+    `;
+}
+
+function generateReels() {
+    const reelsContainer = document.getElementById('reels');
+    reelsContainer.innerHTML = '';
+    
+    const reels = [];
+    
+    for (let i = 0; i < reelsCount; i++) {
+        const reel = document.createElement('div');
+        reel.className = 'reel';
+        
+        const availableSymbols = [...symbols];
+        const reelSymbols = [];
+        
+        for (let j = 0; j < symbolsPerReel; j++) {
+            const randomIndex = Math.floor(Math.random() * availableSymbols.length);
+            const symbol = availableSymbols.splice(randomIndex, 1)[0];
+            reelSymbols.push(symbol);
+            
+            const symbolElement = document.createElement('div');
+            symbolElement.className = 'symbol';
+            symbolElement.textContent = symbol;
+            symbolElement.dataset.reel = i;
+            symbolElement.dataset.position = j;
+            reel.appendChild(symbolElement);
+        }
+        
+        reels.push(reelSymbols);
+        reelsContainer.appendChild(reel);
+    }
+    
+    return reels;
+}
+
+function checkWin(reels) {
+    for (let row = 0; row < symbolsPerReel; row++) {
+        const firstSymbol = reels[0][row];
+        let isWin = true;
+        
+        for (let reel = 1; reel < reelsCount; reel++) {
+            if (reels[reel][row] !== firstSymbol) {
+                isWin = false;
+                break;
+            }
+        }
+        if (isWin) {
+            for (let reel = 0; reel < reelsCount; reel++) {
+                const symbolElement = document.querySelector(`.symbol[data-reel="${reel}"][data-position="${row}"]`);
+                symbolElement.classList.add('win');
+            }
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+function spinReels() {
+    const reels = generateReels();
+    const isWin = checkWin(reels);
+    
+    if (isWin) {
+        userScore++;
+        document.getElementById('userScore').textContent = userScore;
+        showResult('win', '🎉 Вітаємо! Ви виграли! 🎉');
+    } else {
+        showResult('lose', '😔 Спробуйте ще раз!');
+    }
+    
+    addToHistory(isWin);
+    currentAttempt++;
+    
+    if (currentAttempt > maxAttempts) {
+        finishGame();
+    } else {
+        updateAttemptInfo();
+    }
+}
+
+function showResult(type, message) {
+    const resultElement = document.getElementById('resultMessage');
+    resultElement.textContent = message;
+    resultElement.className = `result ${type} fade-in`;
+}
+
+function addToHistory(isWin) {
+    const historyList = document.getElementById('historyList');
+    const historyItem = document.createElement('div');
+    historyItem.className = `history-item fade-in ${isWin ? 'win' : 'lose'}`;
+    
+    const resultText = isWin ? 'Перемога' : 'Поразка';
+    historyItem.innerHTML = `
+        <strong>Спроба ${currentAttempt}:</strong> ${resultText}
+    `;
+    
+    historyList.appendChild(historyItem);
+    historyList.scrollTop = historyList.scrollHeight;
+}
+
+function updateAttemptInfo() {
+    document.getElementById('currentAttempt').textContent = currentAttempt;
+}
+
+function finishGame() {
+    document.getElementById('spinBtn').disabled = true;
+    document.getElementById('newGameBtn').style.display = 'inline-block';
+    
+    let finalMessage = '';
+    if (userScore > 0) {
+        finalMessage = `🎊 ${userName}, ви виграли ${userScore} раз(и) з ${maxAttempts} спроб! 🎊`;
+    } else {
+        finalMessage = `😔 ${userName}, нажаль ви не виграли жодного разу. Спробуйте ще!`;
+    }
+    
+    const winnerMessage = document.createElement('div');
+    winnerMessage.className = 'winner-message fade-in';
+    winnerMessage.textContent = finalMessage;
+    document.querySelector('.result').after(winnerMessage);
+}
+
+function resetGame() {
+    userScore = 0;
+    currentAttempt = 1;
+    document.getElementById('userScore').textContent = userScore;
+    document.getElementById('historyList').innerHTML = '';
+    document.getElementById('spinBtn').disabled = false;
+    document.getElementById('newGameBtn').style.display = 'none';
+    document.querySelector('.winner-message')?.remove();
+    document.getElementById('resultMessage').textContent = '';
+    document.getElementById('resultMessage').className = 'result';
+    updateAttemptInfo();
+    generateReels();
+}
+
+document.getElementById('spinBtn').addEventListener('click', function() {
+    if (currentAttempt <= maxAttempts) {
+        this.disabled = true;
+        setTimeout(() => {
+            spinReels();
+            this.disabled = false;
+        }, 100);
+    }
+});
+document.getElementById('newGameBtn').addEventListener('click', resetGame);
+
+window.addEventListener('load', function() {
+    if (getUserName()) {
+        gameActive = true;
+        generateReels();
+        updateAttemptInfo();
+    }
+});
+    </script>
+</body>
+</html>
